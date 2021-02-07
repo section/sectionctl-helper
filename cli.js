@@ -10,12 +10,15 @@ const cli = meow(
 	Options
     --account, -a    Section.io account ID
     --app, -i    Section.io application ID
-	Examples
-      $ npx sectionctl-static-deps build/ -a 1887 -i 7749
+    Examples
+     # With NPX
+      $ npx "@section.io/sectionctl-helper" static build/ -a 1234 -i 5678
+     # Or with it installed in your node_modules
+      $ sectionctl-helper static build/ -a 1234 -i 5678
     
   help:
     Usage
-      $ sectionctl-helper help
+      $ npx "@section.io/sectionctl-helper" help
 `,
     {
         flags: {

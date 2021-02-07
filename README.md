@@ -7,18 +7,27 @@ cd into the package that you want to deploy, then use this script.
 Usage:
 
 ```
-  $ sectionctl-helper static [build-dir] [options]
+  static:
+ Usage
+   $ sectionctl-helper static [build-dir] [options]
  Options
     --account, -a    Section.io account ID
     --app, -i    Section.io application ID
- Examples
-      $ npx sectionctl-static-deps build/ -a 1887 -i 7749
+    Examples
+     # With NPX
+      $ npx "@section.io/sectionctl-helper" static build/ -a 1234 -i 5678
+     # Or with it installed in your node_modules
+      $ sectionctl-helper static build/ -a 1234 -i 5678
+
+  help:
+    Usage
+      $ npx "@section.io/sectionctl-helper" help
 ```
 
-Example:
+Example (in this case it's a create-react-app, which uses the path `build/` to compile production builds to.)
 
 ```
-npx "@section.io/sectionctl-helper" static build/ --account 0001 --app 0001
+npx "@section.io/sectionctl-helper" static build/ -a 1234 -i 5678
 ```
 
 ## Development of this script
