@@ -70,7 +70,7 @@ async function updatePackageJSON(expressInstalled, packageJSON, account, app) {
         {
             op: 'add',
             path: '/scripts/deploy',
-            value: `sectionctl deploy -a ${account} -i ${app} && sectionctl logs -a ${account} -i ${app}`
+            value: `sectionctl deploy -a ${account} -i ${app}`
         }
     ]
     const replaceOK = 'OK to replace this value? [Y/n]'
@@ -81,13 +81,24 @@ async function updatePackageJSON(expressInstalled, packageJSON, account, app) {
                 if (script === 'start') {
                     if (!expressInstalled) {
                         console.log(
-                            `skipped updating the \`npm run start\` script because express.js wasn't installed.`
+                            `  Skipped updating the \`npm run start\` script because express.js wasn't installed.`
                         )
                         continue
                     }
                 }
                 console.log('')
-                console.log(`  Warning: going to replace \`npm run ${script}\` with an express.js server.`)
+                if (script === 'start') {
+                    console.log(
+                        '  NOTE: npm run start is the entrypoint that section.io uses in production to run your app.'
+                    )
+                    console.log(
+                        '    We installed express.js and added an entrypoint for it, so it is highly advised that you accept this replacement.'
+                    )
+                    console.log(
+                        '    If your script currently runs development scripts, it will automatically be moved to `npm run start-dev`'
+                    )
+                }
+                console.log(`  Warning: going to replace \`npm run ${script}\``)
                 console.log(`  Current Value: ${packageJSON.scripts[script]}`)
                 console.log(`      New Value: ${patch.value}`)
                 prompt.start()
@@ -102,7 +113,7 @@ async function updatePackageJSON(expressInstalled, packageJSON, account, app) {
                     }
                     patches.push(patch)
                 } else {
-                    console.log(`skipping patch of \`npm run ${script}\``)
+                    console.log(`  Skipping patch of \`npm run ${script}\``)
                 }
             } else {
                 patches.push(patch)
@@ -139,7 +150,16 @@ async function checkServerConf() {
     }
     console.log('')
     console.log('🎉 Success!')
-    console.log('You can now run npm deploy to deploy your app on section.')
+    console.log('You can now run `npm run deploy` to deploy your app on section.')
+    prompt.start()
+    const deployOK = 'Run `npm run deploy` now? [y/N]'
+    const res = await prompt.get(deployOK)
+    if (yn(res[deployOK], { default: false })) {
+        console.log('running `npm run deploy`')
+        const result = spawn.sync('npm', ['run', 'deploy'], {
+            stdio: 'inherit'
+        })
+    }
 }
 async function run(cli) {
     if (!cli.flags.account || !cli.flags.app) {
