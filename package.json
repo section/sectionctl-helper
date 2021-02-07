@@ -4,8 +4,7 @@
     "description": "Installs an express server to be used in static deployment of a node.js app on Section's Edge Compute Platform",
     "main": "index.js",
     "scripts": {
-        "test": "cd test && npm run test",
-        "publish": "npm publish --access=public"
+        "test": "cd test && npm run test"
     },
     "author": "section.io",
     "repository": "section/sectionctl-helper",
