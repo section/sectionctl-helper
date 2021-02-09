@@ -4,7 +4,8 @@
     "description": "Installs an express server to be used in static deployment of a node.js app on Section's Edge Compute Platform",
     "main": "index.js",
     "scripts": {
-        "test": "cd test"
+        "test": "cd test",
+        "publish": "np"
     },
     "author": "section.io",
     "repository": "section/sectionctl-helper",
@@ -17,5 +18,8 @@
         "meow": "^9.0.0",
         "prompt": "^1.1.0",
         "yn": "^4.0.0"
+    },
+    "devDependencies": {
+        "np": "^7.3.0"
     }
 }
