@@ -1,11 +1,11 @@
 {
     "name": "@section.io/sectionctl-helper",
-    "version": "1.0.14",
+    "version": "1.0.13",
     "description": "Installs an express server to be used in static deployment of a node.js app on Section's Edge Compute Platform",
     "main": "index.js",
     "scripts": {
         "test": "cd test",
-        "publish": "np"
+        "release": "np"
     },
     "author": "section.io",
     "repository": "section/sectionctl-helper",

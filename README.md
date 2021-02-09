@@ -33,3 +33,12 @@ npx "@section.io/sectionctl-helper" static build/ -a 1234 -i 5678
 ## Development of this script
 
 to test the script in development, `cd test` then `npm run test` and observe the contents of the `test/` folder.
+
+## Publishing
+
+```
+git add .
+git commit -m "my commit"
+# an interactive terminal GUI will pop when you run the release script
+npm run release
+```
