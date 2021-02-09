@@ -1,16 +1,17 @@
 {
     "name": "@section.io/sectionctl-helper",
-    "version": "1.0.9",
+    "version": "1.0.10",
     "description": "Installs an express server to be used in static deployment of a node.js app on Section's Edge Compute Platform",
     "main": "index.js",
     "scripts": {
-        "test": "cd test && npm run test"
+        "test": "cd test"
     },
     "author": "section.io",
     "repository": "section/sectionctl-helper",
     "bin": "cli.js",
     "license": "ISC",
     "dependencies": {
+        "chalk": "^2.4.2",
         "cross-spawn": "^7.0.3",
         "jsonpatch": "^3.0.1",
         "meow": "^9.0.0",

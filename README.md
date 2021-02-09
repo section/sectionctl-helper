@@ -32,4 +32,4 @@ npx "@section.io/sectionctl-helper" static build/ -a 1234 -i 5678
 
 ## Development of this script
 
-to test the script in development, run `npm run test` and observe the contents of the `test/` folder.
+to test the script in development, `cd test` then `npm run test` and observe the contents of the `test/` folder.

@@ -4,35 +4,54 @@ const path = require('path')
 const fs = require('fs')
 const prompt = require('prompt')
 const yn = require('yn')
+const chalk = require('chalk')
+const log = console.log
+const error = chalk.bold.red
+const warning = chalk.keyword('orange')
+
+const ps = chalk.bold.white.bgBlack
+const defaultNo = `[${chalk.yellowBright('y')}/${chalk.green('N')}]`
+const defaultYes = `[${chalk.green('Y')}/${chalk.yellowBright('n')}]`
 
 async function installExpress(packageJSON, buildPath) {
-    if (packageJSON?.dependencies?.express || packageJSON?.devDependencies?.express || false) {
-        console.log('Express is already installed. Skipping installation of Express.')
+    if (packageJSON?.dependencies?.express || packageJSON?.devDependencies?.express) {
+        log('Express is already installed. Skipping installation of Express.')
         return true
     } else {
-        console.log(
-            'ExpressJS is used with hosted node.js apps on section for use with static sites (front-end frameworks). These generally generate compiled, static HTML/CSS/JS to a build directory.'
+        log(
+            chalk.cyanBright(
+                'ExpressJS is used presently for serving static content for apps built with node.js.\nIf you app has a backend, please hit ctrl+c now.'
+            )
         )
-        console.log(
-            `This is required to serve static content. After the following prompt we will set up an express.js server that serves all of the content in the following directory: ${buildPath}`
+        log(
+            chalk.yellowBright(
+                'This script is generally for apps that generate compiled, static HTML/CSS/JS to a build directory.'
+            )
+        )
+        log(
+            `Setting up express is highly recommended for serving compiled content. \nAfter this prompt we will set up an express.js server that serves all of the content in the '${chalk.cyanBright(
+                buildPath
+            )}' directory.`
         )
     }
     prompt.start()
-    const installOK = 'OK to install express.js in current node.js package? [Y/n]'
+    const installOK = ps(`OK to install express.js in current node.js package? ${defaultYes}`)
     const res = await prompt.get(installOK)
     if (yn(res[installOK], { default: true })) {
-        console.log('installing express.js to your package')
+        log(chalk.greenBright('Installing express.js to your package...'))
         const result = spawn.sync('npm', ['install', '--save', 'express'], {
             stdio: 'inherit'
         })
+        console.log('')
+        console.log(chalk.greenBright('Successfully installed express.js'))
         return true
     } else {
         return false
     }
 }
 const updateExpressEntrypoint = (buildPath) => {
-    console.log('')
-    console.log('Handling installation of express.js entrypoint (productionServer.js)...')
+    log('')
+    log('Handling installation of express.js entrypoint (productionServer.js)...')
     const expressTemplate = fs
         .readFileSync(path.resolve(`${__dirname}/productionServer.js`), {
             encoding: 'utf8',
@@ -42,11 +61,9 @@ const updateExpressEntrypoint = (buildPath) => {
     if (fs.existsSync(path.resolve('productionServer.js'))) {
         const existingTemplate = fs.readFileSync(path.resolve('productionServer.js'), { encoding: 'utf8', flag: 'r' })
         if (existingTemplate !== expressTemplate) {
-            console.log(
-                '  productionServer.js exists and is different than the generated output. Skipped updating this file.'
-            )
-            console.log('  Delete productionServer.js if you want to force the reinstallation of it.')
-            console.log('')
+            log('  productionServer.js exists and is different than the generated output. Skipped updating this file.')
+            log('  Delete productionServer.js if you want to force the reinstallation of it.')
+            log('')
             return
         }
     }
@@ -54,7 +71,7 @@ const updateExpressEntrypoint = (buildPath) => {
 }
 
 async function updatePackageJSON(expressInstalled, packageJSON, account, app) {
-    console.log('Patching package.json...')
+    log('Patching package.json...')
     const patches = []
     const availablePatches = [
         {
@@ -73,47 +90,59 @@ async function updatePackageJSON(expressInstalled, packageJSON, account, app) {
             value: `sectionctl deploy -a ${account} -i ${app}`
         }
     ]
-    const replaceOK = 'OK to replace this value? [Y/n]'
+    const replaceOK = ps(`OK to replace this value? ${defaultYes}`)
     for (const patch of availablePatches) {
         const script = path.parse(patch.path).base
         if (typeof packageJSON.scripts[script] === 'undefined' || packageJSON.scripts[script] !== patch.value) {
             if (typeof packageJSON.scripts[script] !== 'undefined') {
                 if (script === 'start') {
                     if (!expressInstalled) {
-                        console.log(
-                            `  Skipped updating the \`npm run start\` script because express.js wasn't installed.`
-                        )
+                        log(`  Skipped updating the \`npm run start\` script because express.js wasn't installed.`)
                         continue
                     }
                 }
-                console.log('')
+                log('')
                 if (script === 'start') {
-                    console.log(
-                        '  NOTE: npm run start is the entrypoint that section.io uses in production to run your app.'
+                    log(
+                        warning(
+                            `     NOTE: npm run start is the entrypoint that section.io uses in production to run your app.`
+                        )
                     )
-                    console.log(
+                    log(
                         '    We installed express.js and added an entrypoint for it, so it is highly advised that you accept this replacement.'
                     )
-                    console.log(
+                    log(
                         '    If your script currently runs development scripts, it will automatically be moved to `npm run start-dev`'
                     )
                 }
-                console.log(`  Warning: going to replace \`npm run ${script}\``)
-                console.log(`  Current Value: ${packageJSON.scripts[script]}`)
-                console.log(`      New Value: ${patch.value}`)
+                log(`  ${warning(`Warning:`)} going to replace \`${chalk.greenBright(`npm run ${script}`)}\``)
+                script !== 'start' &&
+                    log(
+                        `  Your original script will be backed up as \`${chalk.yellowBright(`npm run ${script}-old`)}\``
+                    )
+                log(`  ${chalk.cyan('Current Value:')} ${packageJSON.scripts[script]}`)
+                log(`      ${chalk.cyan('New Value:')} ${patch.value}`)
                 prompt.start()
                 const res = await prompt.get(replaceOK)
                 if (yn(res[replaceOK], { default: true })) {
-                    if (script === 'start' && typeof packageJSON.scripts['start-dev'] === 'undefined') {
+                    if (script === 'start') {
+                        if (typeof packageJSON.scripts['start-dev'] === 'undefined') {
+                            patches.push({
+                                op: 'add',
+                                path: '/scripts/start-dev',
+                                value: packageJSON.scripts[script]
+                            })
+                        }
+                    } else {
                         patches.push({
                             op: 'add',
-                            path: '/scripts/start-dev',
+                            path: `/scripts/${script}-old`,
                             value: packageJSON.scripts[script]
                         })
                     }
                     patches.push(patch)
                 } else {
-                    console.log(`  Skipping patch of \`npm run ${script}\``)
+                    log(`  Skipping patch of \`npm run ${script}\``)
                 }
             } else {
                 patches.push(patch)
@@ -123,11 +152,11 @@ async function updatePackageJSON(expressInstalled, packageJSON, account, app) {
     if (patches.length > 0) {
         patcheddoc = JSON.stringify(jsonpatch.apply_patch(packageJSON, patches), null, 2)
         fs.copyFileSync(path.resolve(path.resolve('package.json')), path.resolve(path.resolve('package.json.bak')))
-        console.log('  Backed up your existing package.json to package.json.bak')
+        log('  Backed up your existing package.json to package.json.bak')
         fs.writeFileSync(path.resolve('package.json'), patcheddoc)
-        console.log('  Added scripts to your package.json.')
+        log('  Added scripts to your package.json.')
     } else {
-        console.log(
+        log(
             '  Addition of scripts to the package.json is unnecessary as they are already what they should be. Skipping.'
         )
     }
@@ -135,27 +164,26 @@ async function updatePackageJSON(expressInstalled, packageJSON, account, app) {
 
 async function checkServerConf() {
     if (!fs.existsSync(path.resolve('server.conf'))) {
-        console.log('')
-        console.log('your server.conf is not defined. Please run the following to initialize a server.conf:')
-        console.log('sectionctl apps init')
+        log('')
+        log('your server.conf is not defined. Please run the following to initialize a server.conf:')
+        log('sectionctl apps init')
         prompt.start()
-        const installOK = 'OK to run sectionctl apps init in current directory? [Y/n]'
+        const installOK = ps(`OK to run sectionctl apps init in current directory? ${defaultYes}`)
         const res = await prompt.get(installOK)
         if (yn(res[installOK], { default: true })) {
-            console.log('installing express.js to your package')
             const result = spawn.sync('sectionctl', ['apps', 'init'], {
                 stdio: 'inherit'
             })
         }
     }
-    console.log('')
-    console.log('🎉 Success!')
-    console.log('You can now run `npm run deploy` to deploy your app on section.')
+    log('')
+    log(chalk.greenBright('🎉 Success!'))
+    log(`You can now run \`${chalk.greenBright('npm run deploy')}\` to deploy your app on section.`)
     prompt.start()
-    const deployOK = 'Run `npm run deploy` now? [y/N]'
+    const deployOK = ps(`Run \`npm run deploy\` now? ${defaultNo}`)
     const res = await prompt.get(deployOK)
     if (yn(res[deployOK], { default: false })) {
-        console.log('running `npm run deploy`')
+        log('running `npm run deploy`')
         const result = spawn.sync('npm', ['run', 'deploy'], {
             stdio: 'inherit'
         })
@@ -163,22 +191,22 @@ async function checkServerConf() {
 }
 async function run(cli) {
     if (!cli.flags.account || !cli.flags.app) {
-        console.log('Error: Missing Flags')
+        log('Error: Missing Flags')
 
         if (!cli.flags.account) {
-            console.log('  --account [number] ( or -a [number] ) is required.')
+            log('  --account [number] ( or -a [number] ) is required.')
         }
         if (!cli.flags.app) {
-            console.log('  --app [number] ( or -i [number] ) is required.')
+            log('  --app [number] ( or -i [number] ) is required.')
         }
-        console.log('Example:')
-        console.log('  $ npx sectionctl-static-deps build/ -a 1887 -i 7749')
+        log('Example:')
+        log('  $ npx sectionctl-static-deps build/ -a 1887 -i 7749')
         return
     }
     const buildPath = cli.input[1]
     const packageJsonPath = path.resolve('package.json')
     if (!fs.existsSync(packageJsonPath)) {
-        console.log('package.json not found.')
+        log('package.json not found.')
         return
     }
     const jsonContent = fs.readFileSync(packageJsonPath, 'utf8')
