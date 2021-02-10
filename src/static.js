@@ -14,25 +14,35 @@ const defaultNo = `[${chalk.yellowBright('y')}/${chalk.green('N')}]`
 const defaultYes = `[${chalk.green('Y')}/${chalk.yellowBright('n')}]`
 
 async function installExpress(packageJSON, buildPath) {
-    if (packageJSON?.dependencies?.express || packageJSON?.devDependencies?.express) {
-        log('Express is already installed. Skipping installation of Express.')
-        return true
+    if (typeof packageJSON !== 'undefined') {
+        if (typeof packageJSON.dependencies !== 'undefined') {
+            if (packageJSON.dependencies.express) {
+                log('Express is already installed. Skipping installation of Express.')
+                return true
+            } else {
+                log(
+                    chalk.cyanBright(
+                        'ExpressJS is used presently for serving static content for apps built with node.js.\nIf you app has a backend, please hit ctrl+c now.'
+                    )
+                )
+                log(
+                    chalk.yellowBright(
+                        'This script is generally for apps that generate compiled, static HTML/CSS/JS to a build directory.'
+                    )
+                )
+                log(
+                    `Setting up express is highly recommended for serving compiled content. \nAfter this prompt we will set up an express.js server that serves all of the content in the '${chalk.cyanBright(
+                        buildPath
+                    )}' directory.`
+                )
+            }
+        } else {
+            log('Your package.json is missing the dependencies property.')
+            return false
+        }
     } else {
-        log(
-            chalk.cyanBright(
-                'ExpressJS is used presently for serving static content for apps built with node.js.\nIf you app has a backend, please hit ctrl+c now.'
-            )
-        )
-        log(
-            chalk.yellowBright(
-                'This script is generally for apps that generate compiled, static HTML/CSS/JS to a build directory.'
-            )
-        )
-        log(
-            `Setting up express is highly recommended for serving compiled content. \nAfter this prompt we will set up an express.js server that serves all of the content in the '${chalk.cyanBright(
-                buildPath
-            )}' directory.`
-        )
+        log('Unable to parse package.json')
+        return false
     }
     prompt.start()
     const installOK = ps(`OK to install express.js in current node.js package? ${defaultYes}`)
