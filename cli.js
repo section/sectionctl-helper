@@ -5,6 +5,8 @@ const commands = require('./src/index.js')
 const cli = meow(
     `
   static:
+    Description
+        This will install express.js and add scripts to run express and deploy your app.
 	Usage
 	  $ sectionctl-helper static [build-dir] [options]
 	Options
@@ -15,6 +17,19 @@ const cli = meow(
       $ npx "@section.io/sectionctl-helper" static build/ -a 1234 -i 5678
      # Or with it installed in your node_modules
       $ sectionctl-helper static build/ -a 1234 -i 5678
+  scripts:
+    Description:
+        If you don't want to use express (ie if your app uses its own node.js webserver runtime), you can use this command to just add the scripts to your package.json.
+      Usage
+        $ sectionctl-helper scripts [options]
+      Options
+      --account, -a    Section.io account ID
+      --app, -i    Section.io application ID
+      Examples
+       # With NPX
+        $ npx "@section.io/sectionctl-helper" scripts -a 1234 -i 5678
+       # Or with it installed in your node_modules
+        $ sectionctl-helper scripts -a 1234 -i 5678
     
   help:
     Usage
@@ -35,6 +50,9 @@ if (cli.input.length === 0) {
     switch (command) {
         case 'static':
             commands.static(cli)
+            break
+        case 'scripts':
+            commands.scripts(cli)
             break
         default:
             console.log(cli.help)
