@@ -53,7 +53,7 @@ npx "@section.io/sectionctl-helper" scripts --account 1234 --app 5678
 
 ## Development of this script
 
-to test the script in development, `cd test` then `npm run test` and observe the contents of the `test/` folder.
+to test the script in development, `cd test` then `npm run test:static` or `npm run test:scripts` and observe the contents of the `test/` folder.
 
 ## Publishing
 
