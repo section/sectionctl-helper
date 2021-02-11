@@ -62,4 +62,5 @@ git add .
 git commit -m "my commit"
 # an interactive terminal GUI will pop when you run the release script
 npm run release
+git push origin master
 ```
