@@ -39,7 +39,6 @@ async function installExpress(packageJSON, buildPath) {
             }
         } else {
             log('Your package.json is missing the dependencies property.')
-            return false
         }
     } else {
         log('Unable to parse package.json')
