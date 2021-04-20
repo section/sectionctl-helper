@@ -36,7 +36,9 @@ async function updatePackageJSON(expressInstalled, packageJSON, account, app) {
         {
             op: 'add',
             path: '/scripts/predeploy',
-            value: `npm install${packageJSON.scripts.build ? ` && npm run build` : ''}`
+            value: `npm install${
+                typeof packageJSON.scripts !== 'undefined' && packageJSON.scripts.build ? ` && npm run build` : ''
+            }`
         },
         {
             op: 'add',
