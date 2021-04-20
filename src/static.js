@@ -5,7 +5,7 @@ const fs = require('fs')
 const prompt = require('prompt')
 const yn = require('yn')
 const chalk = require('chalk')
-const { checkPackageJSON, updatePackageJSON, checkServerConf } = require('./common')
+const { checkPackageJSON, updatePackageJSON, npmRunDeploy } = require('./common')
 const log = console.log
 const error = chalk.bold.red
 const warning = chalk.keyword('orange')
@@ -109,7 +109,7 @@ async function run(cli) {
     //TODO: Determine if npm run build exists, and if not, don't include it in predeploy.
     await updatePackageJSON(expressInstalled, packageJSON, cli.flags.account, cli.flags.app)
 
-    await checkServerConf()
+    await npmRunDeploy()
 }
 
 module.exports.run = run
