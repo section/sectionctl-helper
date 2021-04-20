@@ -1,4 +1,4 @@
-const { checkPackageJSON, updatePackageJSON, checkServerConf } = require('./common')
+const { checkPackageJSON, updatePackageJSON, npmRunDeploy } = require('./common')
 
 async function run(cli) {
     if (!cli.flags.account || !cli.flags.app) {
@@ -22,6 +22,6 @@ async function run(cli) {
 
     await updatePackageJSON(false, packageJSON, cli.flags.account, cli.flags.app)
 
-    await checkServerConf()
+    await npmRunDeploy()
 }
 module.exports.run = run

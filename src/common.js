@@ -116,21 +116,7 @@ async function updatePackageJSON(expressInstalled, packageJSON, account, app) {
     }
 }
 
-async function checkServerConf() {
-    log('Checking for server.conf...')
-    if (!fs.existsSync(path.resolve('server.conf'))) {
-        log('')
-        log('your server.conf is not defined. Please run the following to initialize a server.conf:')
-        log('sectionctl apps init')
-        prompt.start()
-        const installOK = ps(`OK to run sectionctl apps init in current directory? ${defaultYes}`)
-        const res = await prompt.get(installOK)
-        if (yn(res[installOK], { default: true })) {
-            const result = spawn.sync('sectionctl', ['apps', 'init'], {
-                stdio: 'inherit'
-            })
-        }
-    }
+async function npmRunDeploy() {
     log('')
     log(chalk.greenBright('🎉 Success!'))
     log(`You can now run \`${chalk.greenBright('npm run deploy')}\` to deploy your app on section.`)
@@ -145,4 +131,4 @@ async function checkServerConf() {
     }
 }
 
-module.exports = { checkPackageJSON, checkServerConf, updatePackageJSON }
+module.exports = { checkPackageJSON, npmRunDeploy, updatePackageJSON }
