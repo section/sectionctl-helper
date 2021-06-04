@@ -24,14 +24,14 @@ function checkPackageJSON() {
     return [true, packageJSON]
 }
 
-async function updatePackageJSON(expressInstalled, packageJSON, account, app) {
+async function updatePackageJSON(buildPath, packageJSON, account, app) {
     log('Patching package.json...')
     const patches = []
     const availablePatches = [
         {
             op: 'add',
             path: '/scripts/start',
-            value: 'node productionServer.js'
+            value: `serve -s ${buildPath} -l 8080`
         },
         {
             op: 'add',
@@ -43,7 +43,18 @@ async function updatePackageJSON(expressInstalled, packageJSON, account, app) {
         {
             op: 'add',
             path: '/scripts/deploy',
-            value: `sectionctl deploy -a ${account} -i ${app}`
+            value: `sectionctl deploy`
+        },
+        {
+            op: 'add',
+            path: '/section',
+            value: {
+                accountId: `${account}`,
+                appId: `${app}`,
+                environment: 'Production',
+                'module-name': 'nodejs',
+                'start-script': 'start'
+            }
         }
     ]
     const replaceOK = ps(`OK to replace this value? ${defaultYes}`)
@@ -52,8 +63,8 @@ async function updatePackageJSON(expressInstalled, packageJSON, account, app) {
         if (typeof packageJSON.scripts[script] === 'undefined' || packageJSON.scripts[script] !== patch.value) {
             if (typeof packageJSON.scripts[script] !== 'undefined') {
                 if (script === 'start') {
-                    if (!expressInstalled) {
-                        log(`  Skipped updating the \`npm run start\` script because express.js wasn't installed.`)
+                    if (!buildPath) {
+                        log(`  Skipped updating the \`npm run start\` script because serve wasn't installed.`)
                         continue
                     }
                 }
@@ -65,7 +76,7 @@ async function updatePackageJSON(expressInstalled, packageJSON, account, app) {
                         )
                     )
                     log(
-                        '    We installed express.js and added an entrypoint for it, so it is highly advised that you accept this replacement.'
+                        '    We installed serve and added an entrypoint for it, so it is highly advised that you accept this replacement.'
                     )
                     log(
                         '    If your script currently runs development scripts, it will automatically be moved to `npm run start-dev`'

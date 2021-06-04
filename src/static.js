@@ -14,16 +14,16 @@ const ps = chalk.bold.white.bgBlack
 const defaultNo = `[${chalk.yellowBright('y')}/${chalk.green('N')}]`
 const defaultYes = `[${chalk.green('Y')}/${chalk.yellowBright('n')}]`
 
-async function installExpress(packageJSON, buildPath) {
+async function installServe(packageJSON, buildPath) {
     if (typeof packageJSON !== 'undefined') {
         if (typeof packageJSON.dependencies !== 'undefined') {
-            if (packageJSON.dependencies.express) {
-                log('Express is already installed. Skipping installation of Express.')
+            if (packageJSON.dependencies.serve) {
+                log('Serve is already installed. Skipping installation of serve.')
                 return true
             } else {
                 log(
                     chalk.cyanBright(
-                        'ExpressJS is used presently for serving static content for apps built with node.js.\nIf you app has a backend, please hit ctrl+c now.'
+                        'Serve is used presently for serving static content for apps built with node.js.\nIf you app has a backend, please hit ctrl+c now.'
                     )
                 )
                 log(
@@ -32,7 +32,7 @@ async function installExpress(packageJSON, buildPath) {
                     )
                 )
                 log(
-                    `Setting up express is highly recommended for serving compiled content. \nAfter this prompt we will set up an express.js server that serves all of the content in the '${chalk.cyanBright(
+                    `Setting up serve is highly recommended for serving compiled content. \nAfter this prompt we will set up an serve server that serves all of the content in the '${chalk.cyanBright(
                         buildPath
                     )}' directory.`
                 )
@@ -45,39 +45,19 @@ async function installExpress(packageJSON, buildPath) {
         return false
     }
     prompt.start()
-    const installOK = ps(`OK to install express.js in current node.js package? ${defaultYes}`)
+    const installOK = ps(`OK to install serve in current node.js package? ${defaultYes}`)
     const res = await prompt.get(installOK)
     if (yn(res[installOK], { default: true })) {
-        log(chalk.greenBright('Installing express.js to your package...'))
-        const result = spawn.sync('npm', ['install', '--save', 'express'], {
+        log(chalk.greenBright('Installing serve to your package...'))
+        const result = spawn.sync('npm', ['install', '--save', 'serve'], {
             stdio: 'inherit'
         })
         console.log('')
-        console.log(chalk.greenBright('Successfully installed express.js'))
+        console.log(chalk.greenBright('Successfully installed serve'))
         return true
     } else {
         return false
     }
-}
-const updateExpressEntrypoint = (buildPath) => {
-    log('')
-    log('Handling installation of express.js entrypoint (productionServer.js)...')
-    const expressTemplate = fs
-        .readFileSync(path.resolve(`${__dirname}/productionServer.js`), {
-            encoding: 'utf8',
-            flag: 'r'
-        })
-        .replace(/replaceme/, buildPath)
-    if (fs.existsSync(path.resolve('productionServer.js'))) {
-        const existingTemplate = fs.readFileSync(path.resolve('productionServer.js'), { encoding: 'utf8', flag: 'r' })
-        if (existingTemplate !== expressTemplate) {
-            log('  productionServer.js exists and is different than the generated output. Skipped updating this file.')
-            log('  Delete productionServer.js if you want to force the reinstallation of it.')
-            log('')
-            return
-        }
-    }
-    fs.writeFileSync(path.resolve('./productionServer.js'), expressTemplate)
 }
 
 async function run(cli) {
@@ -101,13 +81,10 @@ async function run(cli) {
         log(error('ERROR: package.json not found in this directory.'))
         return
     }
-    const expressInstalled = await installExpress(packageJSON, buildPath)
-    if (expressInstalled) {
-        //TODO: Determine entrypoint via framework, and prompt if not known.
-        await updateExpressEntrypoint(buildPath)
-    }
+    const serveInstalled = await installServe(packageJSON, buildPath)
+
     //TODO: Determine if npm run build exists, and if not, don't include it in predeploy.
-    await updatePackageJSON(expressInstalled, packageJSON, cli.flags.account, cli.flags.app)
+    await updatePackageJSON(buildPath, packageJSON, cli.flags.account, cli.flags.app)
 
     await npmRunDeploy()
 }
