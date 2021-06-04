@@ -6,7 +6,7 @@ const cli = meow(
     `
   static:
     Description
-        This will install express.js and add scripts to run express and deploy your app.
+        This will install serve and add scripts to run serve and deploy your app.
 	Usage
 	  $ sectionctl-helper static [build-dir] [options]
 	Options
@@ -19,7 +19,7 @@ const cli = meow(
       $ sectionctl-helper static build/ -a 1234 -i 5678
   scripts:
     Description:
-        If you don't want to use express (ie if your app uses its own node.js webserver runtime), you can use this command to just add the scripts to your package.json.
+        If you don't want to use serve (ie if your app uses its own node.js webserver runtime), you can use this command to just add the scripts to your package.json.
       Usage
         $ sectionctl-helper scripts [options]
       Options
