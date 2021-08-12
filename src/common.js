@@ -24,7 +24,7 @@ function checkPackageJSON() {
     return [true, packageJSON]
 }
 
-async function updatePackageJSON(buildPath, packageJSON, account, app) {
+async function updatePackageJSON(serveInstalled, buildPath, packageJSON, account, app) {
     log('Patching package.json...')
     const patches = []
     const availablePatches = [
@@ -63,7 +63,7 @@ async function updatePackageJSON(buildPath, packageJSON, account, app) {
         if (typeof packageJSON.scripts[script] === 'undefined' || packageJSON.scripts[script] !== patch.value) {
             if (typeof packageJSON.scripts[script] !== 'undefined') {
                 if (script === 'start') {
-                    if (!buildPath) {
+                    if (!serveInstalled) {
                         log(`  Skipped updating the \`npm run start\` script because serve wasn't installed.`)
                         continue
                     }

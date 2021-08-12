@@ -52,7 +52,6 @@ async function installServe(packageJSON, buildPath) {
         const result = spawn.sync('npm', ['install', '--save', 'serve'], {
             stdio: 'inherit'
         })
-        console.log('')
         console.log(chalk.greenBright('Successfully installed serve'))
         return true
     } else {
@@ -79,15 +78,15 @@ async function run(cli) {
     }
     const buildPath = cli.input[1]
 
-    const [fileExists, packageJSON] = checkPackageJSON()
+    let [fileExists, packageJSON] = checkPackageJSON()
     if (!fileExists) {
         log(error('ERROR: package.json not found in this directory.'))
         return
     }
     const serveInstalled = await installServe(packageJSON, buildPath)
-
+    packageJSON = checkPackageJSON()[1]
     //TODO: Determine if npm run build exists, and if not, don't include it in predeploy.
-    await updatePackageJSON(buildPath, packageJSON, cli.flags.account, cli.flags.app)
+    await updatePackageJSON(serveInstalled, buildPath, packageJSON, cli.flags.account, cli.flags.app)
 
     await npmRunDeploy()
 }
