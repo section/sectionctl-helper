@@ -56,7 +56,10 @@ async function installServe(packageJSON, buildPath) {
         console.log(chalk.greenBright('Successfully installed serve'))
         return true
     } else {
-        return false
+        console.error(
+            'Serve is required to serve static content. You can also bring your own webserver package, but you must modify the start script to initialize it. \n Please run this script again and choose yes if you would like to continue.'
+        )
+        process.exit(1)
     }
 }
 

@@ -8,15 +8,5 @@
         "test:scripts": "node ../cli.js scripts -a 0002 -i 0002"
     },
     "author": "section.io",
-    "license": "ISC",
-    "dependencies": {
-        "serve": "^11.3.2"
-    },
-    "section": {
-        "accountId": "2",
-        "appId": "1",
-        "environment": "Production",
-        "module-name": "nodejs",
-        "start-script": "start"
-    }
+    "license": "ISC"
 }
