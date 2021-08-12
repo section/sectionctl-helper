@@ -1,6 +1,6 @@
 {
     "name": "@section.io/sectionctl-helper",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "description": "Automatically configures your node.js app for deployment on Section's Edge Compute Platform",
     "main": "index.js",
     "scripts": {
