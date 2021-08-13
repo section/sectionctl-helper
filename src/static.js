@@ -5,7 +5,7 @@ const fs = require('fs')
 const prompt = require('prompt')
 const yn = require('yn')
 const chalk = require('chalk')
-const { checkPackageJSON, updatePackageJSON, npmRunDeploy } = require('./common')
+const { checkPackageJSON, updatePackageJSON, npmRunDeploy, checkAndUpdateBuildPath } = require('./common')
 const log = console.log
 const error = chalk.bold.red
 const warning = chalk.keyword('orange')
@@ -85,6 +85,7 @@ async function run(cli) {
     }
     const serveInstalled = await installServe(packageJSON, buildPath)
     packageJSON = checkPackageJSON()[1]
+    await checkAndUpdateBuildPath(buildPath)
     //TODO: Determine if npm run build exists, and if not, don't include it in predeploy.
     await updatePackageJSON(serveInstalled, buildPath, packageJSON, cli.flags.account, cli.flags.app)
 

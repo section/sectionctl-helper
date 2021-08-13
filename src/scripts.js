@@ -16,11 +16,11 @@ async function run(cli) {
     }
     const [fileExists, packageJSON] = checkPackageJSON()
     if (!fileExists) {
-        log(error('ERROR: package.json not found in this directory.'))
+        log(error('ERROR: package.json not found in this directory, please run `npm init -y`.'))
         return
     }
 
-    await updatePackageJSON(false, packageJSON, cli.flags.account, cli.flags.app)
+    await updatePackageJSON(false, null, packageJSON, cli.flags.account, cli.flags.app)
 
     await npmRunDeploy()
 }
