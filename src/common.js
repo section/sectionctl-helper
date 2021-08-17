@@ -24,15 +24,25 @@ function checkPackageJSON() {
     return [true, packageJSON]
 }
 
+async function checkAndUpdateBuildPath(buildPath) {
+    if (!fs.existsSync(`./${buildPath}`)) {
+        log('build path not found, creating sample folder')
+        fs.mkdir(buildPath, (err) => {
+            if (err) throw err
+            fs.writeFile('index.html', 'Hello', function (err) {
+                if (err) throw err
+                fs.rename(`./index.html`, `./${buildPath}/index.html`, (err) => {
+                    if (err) throw err
+                })
+            })
+        })
+    }
+}
+
 async function updatePackageJSON(serveInstalled, buildPath, packageJSON, account, app) {
     log('Patching package.json...')
     const patches = []
     const availablePatches = [
-        {
-            op: 'add',
-            path: '/scripts/start',
-            value: `serve -s ${buildPath} -l 8080`
-        },
         {
             op: 'add',
             path: '/scripts/predeploy',
@@ -57,6 +67,13 @@ async function updatePackageJSON(serveInstalled, buildPath, packageJSON, account
             }
         }
     ]
+    if (buildPath) {
+        availablePatches.push({
+            op: 'add',
+            path: '/scripts/start',
+            value: `serve -s ${buildPath} -l 8080`
+        })
+    }
     const replaceOK = ps(`OK to replace this value? ${defaultYes}`)
     for (const patch of availablePatches) {
         const script = path.parse(patch.path).base
@@ -67,9 +84,6 @@ async function updatePackageJSON(serveInstalled, buildPath, packageJSON, account
                         log(`  Skipped updating the \`npm run start\` script because serve wasn't installed.`)
                         continue
                     }
-                }
-                log('')
-                if (script === 'start') {
                     log(
                         warning(
                             `     NOTE: npm run start is the entrypoint that section.io uses in production to run your app.`
@@ -144,4 +158,4 @@ async function npmRunDeploy() {
     }
 }
 
-module.exports = { checkPackageJSON, npmRunDeploy, updatePackageJSON }
+module.exports = { checkPackageJSON, npmRunDeploy, updatePackageJSON, checkAndUpdateBuildPath }

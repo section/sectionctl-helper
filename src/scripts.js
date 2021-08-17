@@ -1,4 +1,7 @@
 const { checkPackageJSON, updatePackageJSON, npmRunDeploy } = require('./common')
+const log = console.log
+const chalk = require('chalk')
+const error = chalk.bold.red
 
 async function run(cli) {
     if (!cli.flags.account || !cli.flags.app) {
@@ -16,12 +19,23 @@ async function run(cli) {
     }
     const [fileExists, packageJSON] = checkPackageJSON()
     if (!fileExists) {
-        log(error('ERROR: package.json not found in this directory.'))
+        log(error('ERROR: package.json not found in this directory, please run `npm init -y`.'))
         return
     }
 
-    await updatePackageJSON(false, packageJSON, cli.flags.account, cli.flags.app)
+    await updatePackageJSON(false, null, packageJSON, cli.flags.account, cli.flags.app)
 
-    await npmRunDeploy()
+    const [result, pkgJSON] = checkPackageJSON()
+    if (!result) {
+        log(error('ERROR: package.json not found in this directory, please run `npm init -y`.'))
+        return
+    }
+
+    if (typeof pkgJSON?.scripts?.start == 'string' && pkgJSON?.scripts?.start?.length) {
+        await npmRunDeploy()
+    } else {
+        log(error('⚠️  Please add start script to your package.json'))
+        log('Then run `npm run deploy` to deploy your app to Section')
+    }
 }
 module.exports.run = run
