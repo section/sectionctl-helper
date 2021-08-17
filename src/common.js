@@ -73,12 +73,6 @@ async function updatePackageJSON(serveInstalled, buildPath, packageJSON, account
             path: '/scripts/start',
             value: `serve -s ${buildPath} -l 8080`
         })
-    } else {
-        availablePatches.push({
-            op: 'add',
-            path: '/scripts/start',
-            value: 'node YOUR_ENTRYPOINT.js'
-        })
     }
     const replaceOK = ps(`OK to replace this value? ${defaultYes}`)
     for (const patch of availablePatches) {
